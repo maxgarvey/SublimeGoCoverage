@@ -5,7 +5,13 @@ import os
 import re
 import shlex
 
-gopath = os.environ["GOPATH"]
+try:
+	gopath = os.environ["GOPATH"]
+except Exception as e:
+	print('exception reading GOPATH from environment; try the "gopath" config param in plugin settings')
+	print('exception: {e}'.format(e=e))
+	gopath = sublime.load_settings(settings).get("gopath")
+
 line_re = re.compile("^(?P<filename>.+):(?P<start_line>[0-9]+).(?P<start_column>[0-9]+),(?P<end_line>[0-9]+).(?P<end_column>[0-9]+) (?P<statements>[0-9]+) (?P<count>[0-9]+)$")
 settings = "SublimeGoCoverage.sublime-settings"
 
@@ -68,7 +74,7 @@ def run_tests(file_info):
 	cover_profile = file_info["cover_profile"]
 
 	print("Generating coverage profile for", package_full_name)
-	
+
 	command_line = sublime.load_settings(settings).get("command_line")
 
 	if not command_line:
